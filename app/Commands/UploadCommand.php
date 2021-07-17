@@ -4,23 +4,33 @@ namespace App\Commands;
 
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
+use Storage;
 
-class InspiringCommand extends Command
+class UploadCommand extends Command
 {
     /**
      * The signature of the command.
      *
      * @var string
      */
-    protected $signature = 'inspiring {name=Artisan}';
+    protected $signature = 'upload
+							{filename}';
 
     /**
      * The description of the command.
      *
      * @var string
      */
-    protected $description = 'Display an inspiring quote';
-
+    protected $description = 'Upload files to anonfiles';
+    
+    public function __construct()
+    {
+    	parent::__construct();
+    
+    	$this->disk = Storage::build(['driver' => 'local', 'root' => getcwd()]);
+    }
+    
+    
     /**
      * Execute the console command.
      *
@@ -28,7 +38,19 @@ class InspiringCommand extends Command
      */
     public function handle()
     {
-        $this->info('Simplicity is the ultimate sophistication.');
+        $this->info($this->argument('filename'));
+        $this->info(getcwd());
+    }
+    
+    
+    private function validate()
+    {
+    	//
+    }
+    
+    private function checkIfFileExists()
+    {
+    	//
     }
 
     /**
@@ -37,7 +59,7 @@ class InspiringCommand extends Command
      * @param  \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
-    public function schedule(Schedule $schedule)
+    public function schedule(Schedule $schedule): void
     {
         // $schedule->command(static::class)->everyMinute();
     }
