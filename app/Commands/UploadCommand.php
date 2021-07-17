@@ -23,10 +23,11 @@ class UploadCommand extends Command
      */
     protected $description = 'Upload files to anonfiles';
     
+    protected $disk;
+    
     public function __construct()
     {
     	parent::__construct();
-    
     	$this->disk = Storage::build(['driver' => 'local', 'root' => getcwd()]);
     }
     
@@ -38,7 +39,8 @@ class UploadCommand extends Command
      */
     public function handle()
     {
-        $this->info($this->argument('filename'));
+    	$this->checkIfFileExists();
+        
         $this->info(getcwd());
     }
     
@@ -49,6 +51,15 @@ class UploadCommand extends Command
     }
     
     private function checkIfFileExists()
+    {
+    	if(!$this->disk->exists($this->argument('filename')))
+	    {
+			$this->error("File doesn't exists");
+			exit();
+		}
+    }
+    
+    private function showFileMetaData()
     {
     	//
     }
