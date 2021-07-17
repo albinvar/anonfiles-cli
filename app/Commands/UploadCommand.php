@@ -40,6 +40,8 @@ class UploadCommand extends Command
     public function handle()
     {
     	$this->checkIfFileExists();
+    
+	    $this->showFileMetaData();
         
         $this->info(getcwd());
     }
@@ -61,7 +63,15 @@ class UploadCommand extends Command
     
     private function showFileMetaData()
     {
-    	//
+    	$headers = ['Properties', 'Values'];
+    
+    	$data = [
+	        ['path', $this->argument('filename')],
+			['last modified', $this->disk->lastModified($this->argument('filename'))],
+	        ['size', $this->disk->size($this->argument('filename'))]
+	    ];
+    
+	    $this->table($headers, $data);
     }
 
     /**
