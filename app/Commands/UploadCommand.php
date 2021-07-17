@@ -5,6 +5,9 @@ namespace App\Commands;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 use Storage;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 
 class UploadCommand extends Command
 {
@@ -28,7 +31,9 @@ class UploadCommand extends Command
     public function __construct()
     {
     	parent::__construct();
+    
     	$this->disk = Storage::build(['driver' => 'local', 'root' => getcwd()]);
+	    $this->client = new Client(['http_error' => false]);
     }
     
     
@@ -43,7 +48,9 @@ class UploadCommand extends Command
     
 	    $this->showFileMetaData();
         
-        $this->info(getcwd());
+        if($this->confirm('Do you want to upload file?')){
+        	$this->upload();
+        };
     }
     
     
@@ -73,7 +80,36 @@ class UploadCommand extends Command
     
 	    $this->table($headers, $data);
     }
-
+    
+    private function upload()
+    {
+    	$api = 'https://api.anonfiles.com/upload';
+    	$resource = $this->disk->get($this->argument('filename'));
+	    
+		$stream = Psr7\stream_for($resource);
+		
+		$request = new Request(
+        'POST',
+        $api,
+        [],
+        new Psr7\MultipartStream(
+            [
+                [
+                    'name' => 'file',
+                    'contents' => $stream,
+                    'filename' => 'tesy',
+                ],
+            ]
+        )
+	);
+	dump($request);
+	$response = $this->client->send($request);
+	
+	dd(json_decode($response->getBody()));
+    }
+    
+    
+    
     /**
      * Define the command's schedule.
      *
