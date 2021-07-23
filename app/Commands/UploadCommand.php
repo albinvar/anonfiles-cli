@@ -33,7 +33,17 @@ class UploadCommand extends Command
     	parent::__construct();
     
     	$this->disk = Storage::build(['driver' => 'local', 'root' => getcwd()]);
-	    $this->client = new Client(['http_error' => false]);
+	    $this->client = new Client(['http_error' => false, 'progress' => function(
+            $downloadTotal,
+            $downloadedBytes,
+            $uploadTotal,
+            $uploadedBytes
+        ) {
+            $res = curl_getinfo($downloadTotal);
+            echo "\033[5D";      
+            $msg = $this->diffForHumans($res['size_upload']) . ' / ' . $this->diffForHumans($res['upload_content_length']);
+		    echo "     📂  Progress : {$msg} \r";
+        },]);
     }
     
     
@@ -111,7 +121,7 @@ class UploadCommand extends Command
     
     public function diffForHumans($bytes, $dec = 2)
     {
-    	$size   = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    	$size   = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
     
 	    $factor = floor((strlen($bytes) - 1) / 3);
 	    return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
