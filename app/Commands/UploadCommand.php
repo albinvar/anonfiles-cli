@@ -75,7 +75,7 @@ class UploadCommand extends Command
     	$data = [
 	        ['path', $this->argument('filename')],
 			['last modified', $this->disk->lastModified($this->argument('filename'))],
-	        ['size', $this->disk->size($this->argument('filename'))]
+	        ['size', $this->diffForHumans($this->disk->size($this->argument('filename')))]
 	    ];
     
 	    $this->table($headers, $data);
@@ -102,12 +102,20 @@ class UploadCommand extends Command
             ]
         )
 	);
-	dump($request);
+	
 	$response = $this->client->send($request);
 	
 	dd(json_decode($response->getBody()));
     }
     
+    
+    public function diffForHumans($bytes, $dec = 2)
+    {
+    	$size   = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    
+	    $factor = floor((strlen($bytes) - 1) / 3);
+	    return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
+    }
     
     
     /**
