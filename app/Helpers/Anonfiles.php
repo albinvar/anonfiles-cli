@@ -106,7 +106,7 @@ default:
     {
         $size = config('anonfiles.STORAGE_UNITS');
 
-        $factor = floor((strlen($bytes) - 1) / 3);
+        $factor = floor((strlen(strval($bytes)) - 1) / 3);
         return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }
 
@@ -148,7 +148,7 @@ default:
 
     public function getResponse()
     {
-        return json_decode($this->response->getBody());
+        return json_decode($this->response->getBody()->getContents());
     }
 
     private function getMetadata(): void
