@@ -11,6 +11,11 @@ use GuzzleHttp\Psr7\Request;
 
 class UploadCommand extends Command
 {
+	
+	public $api = 'https://api.anonfiles.com/upload';
+	
+	public $size = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
+	
     /**
      * The signature of the command.
      *
@@ -93,7 +98,6 @@ class UploadCommand extends Command
     
     private function upload()
     {
-    	$api = 'https://api.anonfiles.com/upload';
     	$resource = $this->disk->get($this->argument('filename'));
 	    
 		$stream = Psr7\stream_for($resource);
@@ -121,8 +125,6 @@ class UploadCommand extends Command
     
     public function diffForHumans($bytes, $dec = 2)
     {
-    	$size   = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
-    
 	    $factor = floor((strlen($bytes) - 1) / 3);
 	    return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }
