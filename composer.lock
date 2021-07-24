@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5316f855e744debe9265b355fb0707cc",
+    "content-hash": "b0589fee8efb8a4be68148421f58b21e",
     "packages": [
         {
             "name": "brick/math",
@@ -1938,6 +1938,61 @@
                 "source": "https://github.com/laravel-zero/laravel-zero"
             },
             "time": "2021-06-03T15:51:45+00:00"
+        },
+        {
+            "name": "laravel-zero/phar-updater",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel-zero/phar-updater.git",
+                "reference": "772218282fb6ac8f166380a24e77350ec85fbe7e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel-zero/phar-updater/zipball/772218282fb6ac8f166380a24e77350ec85fbe7e",
+                "reference": "772218282fb6ac8f166380a24e77350ec85fbe7e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.3|^8.0"
+            },
+            "conflict": {
+                "padraic/phar-updater": "*"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "phpstan/phpstan": "^0.12.85",
+                "phpunit/phpunit": "^9.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Humbug\\SelfUpdate\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Padraic Brady",
+                    "email": "padraic.brady@gmail.com",
+                    "homepage": "http://blog.astrumfutura.com"
+                }
+            ],
+            "description": "A thing to make PHAR self-updating easy and secure.",
+            "keywords": [
+                "humbug",
+                "phar",
+                "self-update",
+                "update"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel-zero/phar-updater/issues",
+                "source": "https://github.com/laravel-zero/phar-updater/tree/v1.1.0"
+            },
+            "time": "2021-06-29T10:21:23+00:00"
         },
         {
             "name": "league/flysystem",
