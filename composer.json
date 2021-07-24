@@ -24,6 +24,7 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.4.3",
+        "nunomaduro/phpinsights": "^2.0",
         "pestphp/pest": "^1.3"
     },
     "autoload": {
