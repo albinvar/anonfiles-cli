@@ -84,7 +84,7 @@ class UploadCommand extends Command
     
     	$data = [
 	        ['path', $this->argument('filename')],
-			['last modified', $this->disk->lastModified($this->argument('filename'))],
+			['last modified', date('m/d/Y H:i:s', $this->disk->lastModified($this->argument('filename')))],
 	        ['size', $this->diffForHumans($this->disk->size($this->argument('filename')))]
 	    ];
     
@@ -114,8 +114,8 @@ class UploadCommand extends Command
 	);
 	
 	$response = $this->client->send($request);
+	$this->showResponse($response);
 	
-	dd(json_decode($response->getBody()));
     }
     
     
@@ -125,6 +125,21 @@ class UploadCommand extends Command
     
 	    $factor = floor((strlen($bytes) - 1) / 3);
 	    return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
+    }
+    
+    public function showResponse($response)
+    {
+    	$json = json_decode($response->getBody());
+	    
+		if($json->status)
+		{
+		    $this->comment('   File uploaded ✅');
+			$this->newline();
+			$this->info('link : '. $json->data->file->url->full);
+			$this->newline();
+		} else {
+			$this->error = "Uploading failed...";
+		}
     }
     
     
