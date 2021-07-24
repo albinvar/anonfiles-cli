@@ -8,13 +8,10 @@ use Storage;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
+use App\Helpers\Anonfiles;
 
 class UploadCommand extends Command
 {
-	
-	public $api = 'https://api.anonfiles.com/upload';
-	
-	public $size = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
 	
     /**
      * The signature of the command.
@@ -36,19 +33,10 @@ class UploadCommand extends Command
     public function __construct()
     {
     	parent::__construct();
-    
-    	$this->disk = Storage::build(['driver' => 'local', 'root' => getcwd()]);
-	    $this->client = new Client(['http_error' => false, 'progress' => function(
-            $downloadTotal,
-            $downloadedBytes,
-            $uploadTotal,
-            $uploadedBytes
-        ) {
-            $res = curl_getinfo($downloadTotal);
-            echo "\033[5D";      
-            $msg = $this->diffForHumans($res['size_upload']) . ' / ' . $this->diffForHumans($res['upload_content_length']);
-		    echo "     📂  Progress : {$msg} \r";
-        },]);
+	    
+		// initialize Anonfiles helper.
+    	$this->anonfiles = new Anonfiles();
+	    
     }
     
     
@@ -59,6 +47,10 @@ class UploadCommand extends Command
      */
     public function handle()
     {
+    	// create new disk instance.
+	    $this->anonfiles->createDisk();
+
+
     	$this->checkIfFileExists();
     
 	    $this->showFileMetaData();
