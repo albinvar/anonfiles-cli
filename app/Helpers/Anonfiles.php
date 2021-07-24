@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use LaravelZero\Framework\Commands\Command;
 use Storage;
+use Laminas\Text\Figlet\Figlet;
 
 class Anonfiles extends Command
 {
@@ -51,9 +52,11 @@ class Anonfiles extends Command
         return system('clear');
     }
 	
-	public function setFile()
+	public function setFile($file)
 	{
-		//
+		$this->file = $file;
+		$this->path = $this->disk->path($file);
+		$this->getMetaData();
 	}
 	
 	public function createDisk()
@@ -68,7 +71,7 @@ class Anonfiles extends Command
 	
 	public function getFilename()
 	{
-		//
+		return basename($this->path);
 	}
 	
 	public function validate()
@@ -76,18 +79,36 @@ class Anonfiles extends Command
 		//
 	}
 	
-	public function getMetadata()
+	private function getMetadata()
 	{
-		//
+		$this->fileLastModified = $this->disk->lastModified($this->file);
+		$this->fileSize = $this->disk->size($this->file);
 	}
 	
-	public function checkIfFileExists()
+	public function getSize()
 	{
-		//
+		return $this->diffForHumans($this->fileSize);
+	}
+	
+	public function getLastModified()
+	{
+		return date('m/d/Y H:i:s', $this->fileLastModified);
+	}
+	
+	public function checkIfFileExists($pathToFile)
+	{
+		if($this->disk->exists($pathToFile))
+	    {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public function diffForHumans($bytes, $dec = 2)
     {
+    	$size = config('anonfiles.STORAGE_UNITS');
+	    
 	    $factor = floor((strlen($bytes) - 1) / 3);
 	    return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }

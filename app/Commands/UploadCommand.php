@@ -47,12 +47,19 @@ class UploadCommand extends Command
      */
     public function handle()
     {
+    	//show logo.
+	    $this->anonfiles->logo("Anonfiles", 'comment');
+    
     	// create new disk instance.
 	    $this->anonfiles->createDisk();
-
-
-    	$this->checkIfFileExists();
-    
+		
+		
+		$this->file = $this->argument('filename');
+		
+		// validate the file before uploading.
+		$this->validate();
+		
+		//
 	    $this->showFileMetaData();
         
         if($this->confirm('Do you want to upload file?')){
@@ -63,16 +70,14 @@ class UploadCommand extends Command
     
     private function validate()
     {
-    	//
-    }
-    
-    private function checkIfFileExists()
-    {
-    	if(!$this->disk->exists($this->argument('filename')))
+    	if(!$this->anonfiles->checkIfFileExists($this->file))
 	    {
-			$this->error("File doesn't exists");
+			$this->error("File doesn't exist.");
 			exit();
 		}
+		
+		$this->anonfiles->setFile($this->file);
+		
     }
     
     private function showFileMetaData()
@@ -80,9 +85,10 @@ class UploadCommand extends Command
     	$headers = ['Properties', 'Values'];
     
     	$data = [
-	        ['path', $this->argument('filename')],
-			['last modified', date('m/d/Y H:i:s', $this->disk->lastModified($this->argument('filename')))],
-	        ['size', $this->diffForHumans($this->disk->size($this->argument('filename')))]
+		    ['filename', $this->anonfiles->getFileName()],
+	        ['path', $this->anonfiles->path],
+	        ['size', $this->anonfiles->getSize()],
+			['last modified', $this->anonfiles->getLastModified()],
 	    ];
     
 	    $this->table($headers, $data);
@@ -112,13 +118,6 @@ class UploadCommand extends Command
 	$response = $this->client->send($request);
 	$this->showResponse($response);
 	
-    }
-    
-    
-    public function diffForHumans($bytes, $dec = 2)
-    {
-	    $factor = floor((strlen($bytes) - 1) / 3);
-	    return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }
     
     public function showResponse($response)
