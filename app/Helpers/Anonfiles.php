@@ -5,6 +5,9 @@ namespace App\Helpers;
 use LaravelZero\Framework\Commands\Command;
 use Storage;
 use Laminas\Text\Figlet\Figlet;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 
 class Anonfiles extends Command
 {
@@ -113,35 +116,45 @@ class Anonfiles extends Command
 	    return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }
 	
-	private function upload()
+	public function upload()
     {
-    	$resource = $this->disk->get($this->argument('filename'));
+    	$this->client = new Client(['http_error' => false, 'progress' => function(
+            $downloadTotal,
+            $downloadedBytes,
+            $uploadTotal,
+            $uploadedBytes
+        ) {
+            $res = curl_getinfo($downloadTotal);
+            echo "\033[5D";      
+            $msg = $this->diffForHumans($res['size_upload']) . ' / ' . $this->diffForHumans($res['upload_content_length']);
+		    echo "     📂  Progress : {$msg} \r";
+        },]);
+
+    	$resource = $this->disk->get($this->file);
 	    
 		$stream = Psr7\stream_for($resource);
 		
 		$request = new Request(
         'POST',
-        $api,
+        config('anonfiles.UPLOAD_ENDPOINT'),
         [],
         new Psr7\MultipartStream(
             [
                 [
                     'name' => 'file',
                     'contents' => $stream,
-                    'filename' => 'tesy',
+                    'filename' => $this->getFilename(),
                 ],
             ]
         )
 	);
 	
-	$response = $this->client->send($request);
-	$this->showResponse($response);
-	
+	$this->response = $this->client->send($request);
     }
     
     
     public function getResponse()
     {
-    	//
+    	return json_decode($this->response->getBody());
     }
 }

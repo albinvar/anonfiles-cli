@@ -47,9 +47,9 @@ class UploadCommand extends Command
      */
     public function handle()
     {
-    	//show logo.
-	    $this->anonfiles->logo("Anonfiles", 'comment');
-    
+    	// show logo.
+	    $this->anonfiles->logo('Anonfiles', 'comment');
+
     	// create new disk instance.
 	    $this->anonfiles->createDisk();
 		
@@ -63,8 +63,17 @@ class UploadCommand extends Command
 	    $this->showFileMetaData();
         
         if($this->confirm('Do you want to upload file?')){
-        	$this->upload();
+        	try {
+	        	$this->anonfiles->upload();
+			} catch(\GuzzleHttp\Exception\ConnectException $e) {
+				$this->error($e->getMessage());
+			} catch(\Exception $e) {
+				$this->error($e->getMessage());
+			}
         };
+        
+        
+        $this->showResponse();
     }
     
     
@@ -94,35 +103,11 @@ class UploadCommand extends Command
 	    $this->table($headers, $data);
     }
     
-    private function upload()
-    {
-    	$resource = $this->disk->get($this->argument('filename'));
-	    
-		$stream = Psr7\stream_for($resource);
-		
-		$request = new Request(
-        'POST',
-        $api,
-        [],
-        new Psr7\MultipartStream(
-            [
-                [
-                    'name' => 'file',
-                    'contents' => $stream,
-                    'filename' => 'tesy',
-                ],
-            ]
-        )
-	);
-	
-	$response = $this->client->send($request);
-	$this->showResponse($response);
-	
-    }
     
-    public function showResponse($response)
+    
+    public function showResponse()
     {
-    	$json = json_decode($response->getBody());
+    	$json = $this->anonfiles->getResponse();
 	    
 		if($json->status)
 		{
