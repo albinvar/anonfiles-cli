@@ -45,5 +45,5 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "bin": ["anonfiles"]
+    "bin": ["builds/anonfiles"]
 }
