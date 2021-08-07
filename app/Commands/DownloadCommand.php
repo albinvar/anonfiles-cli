@@ -16,7 +16,8 @@ class DownloadCommand extends Command
      * @var string
      */
     protected $signature = 'download
-							{link}';
+							{link}
+							{-p|--path=}';
 
     /**
      * The description of the command.
@@ -47,6 +48,8 @@ class DownloadCommand extends Command
         $this->anonfiles->createDisk();
 
 		$this->link = $this->argument('link');
+		
+		$this->downloadPath = (is_null($this->option('path'))) ? getcwd() : $this->option('path');
 		
 		$this->info("  Selected URL : {$this->link}");
 		
@@ -114,11 +117,25 @@ class DownloadCommand extends Command
 
         $data = [
             ['filename', $this->fileData->data->file->metadata->name],
-            ['path', $this->fileData->data->file->url->full],
+            ['url', $this->fileData->data->file->url->full],
             ['size', $this->fileData->data->file->metadata->size->readable],
         ];
-
+        
         $this->table($headers, $data);
+        
+        if($this->confirm('Are you sure you want to Download this file?'))
+        {
+        	$status = $this->anonfiles->download($this->anonfiles->getDownloadLink($this->link), $this->downloadPath .'/'. $this->fileData->data->file->metadata->name);
+        
+        if($status) {
+            $this->comment(' File downloaded ✅');
+            $this->newline();
+            return 0;
+        } else {
+            $this->error = ' Downloading failed...';
+            return 1;
+        }
+        }
 	}
     
     /**

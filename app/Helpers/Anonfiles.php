@@ -164,6 +164,34 @@ default:
 
         $this->response = $this->client->send($request);
     }
+    
+    
+    public function download($link=null, $pathToFile=null): mixed
+    {
+		$this->setFileExtenstion();
+	    
+	try {
+        $this->client = new Client(['http_error' => false, 'progress' => function (
+            $downloadTotal,
+            $downloadedBytes,
+            $uploadTotal,
+            $uploadedBytes
+        ): void {
+            echo "\033[5D";
+            $msg = $this->diffForHumans($uploadTotal) . ' / ' . $this->diffForHumans($downloadedBytes);
+            echo "      📥  Progress : {$msg} \r";
+        },
+        ]);
+        $resource = fopen($pathToFile, 'w');
+
+        $stream = Psr7\stream_for($resource);
+
+        $this->response = $this->client->request('GET', $link, ['save_to' => $stream]);
+        } catch(\Exception $e) {
+        	return false;
+        }
+        return true;
+    }
 
     public function getResponse()
     {
