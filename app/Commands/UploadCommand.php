@@ -26,7 +26,7 @@ class UploadCommand extends Command
     protected $description = 'Upload files to anonfiles';
 
     protected $disk;
-    
+
     protected $newFilename = null;
 
     public function __construct()
@@ -54,14 +54,13 @@ class UploadCommand extends Command
         $this->validate();
 
         $this->showFileMetaData();
-        
-        
-        if($this->confirm('Do you want to rename file before uploading?'))
-        {
-        	$this->setNewFileName();
+
+
+        if ($this->confirm('Do you want to rename file before uploading?')) {
+            $this->setNewFileName();
         }
-            
-        
+
+
         if ($this->confirm('Do you want to upload file?')) {
             try {
                 $this->anonfiles->upload($this->newFilename);
@@ -71,16 +70,16 @@ class UploadCommand extends Command
                 $this->error($e->getMessage());
             }
         } else {
-        	$this->error('aborting...');
-	        return 0;
+            $this->error('aborting...');
+            return 0;
         }
 
-       return $this->showResponse();
+        return $this->showResponse();
     }
-    
-    private function setNewFileName() :void
+
+    private function setNewFileName(): void
     {
-    	$this->newFilename = $this->ask('Enter your new file name');
+        $this->newFilename = $this->ask('Enter your new file name');
     }
 
     public function showResponse(): mixed
