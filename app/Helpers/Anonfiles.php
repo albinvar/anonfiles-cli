@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\Request;
 use Laminas\Text\Figlet\Figlet;
 use LaravelZero\Framework\Commands\Command;
 use Storage;
+use DOMDocument;
 
 class Anonfiles extends Command
 {
@@ -173,5 +174,12 @@ default:
     {
         $this->fileLastModified = $this->disk->lastModified($this->file);
         $this->fileSize = $this->disk->size($this->file);
+    }
+    
+    public function getDownloadLink($link=null)
+    {
+    	$dom = new DOMDocument(); 
+		$dom->loadHTML(file_get_contents($link));
+		return $dom->getElementById('download-url')->getAttribute('href');
     }
 }
