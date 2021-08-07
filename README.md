@@ -39,9 +39,8 @@ curl -s https://github.com/albinvar/anonfiles-cli/raw/main/builds/anonfiles -o a
 wget https://github.com/albinvar/anonfiles-cli/raw/main/builds/anonfiles -O anonfiles
 ```
 
-#####  composer
-
-Remember, installing with composer requires each and every libraries should be downloaded first.
+#####  composer `(on construction)`
+Remember, installing with composer requires each and every libraries to be downloaded first.
 
 ```
 composer global require albinvar/anonfiles-cli
@@ -49,18 +48,18 @@ composer global require albinvar/anonfiles-cli
 
 ## Usage
 
-The usage of anonfiles cli is very simple. 
+Using anonfiles cli is very simple. 
 
 after installing properly, you would be able to use via anonfiles command globally.
 
 ```
-anonfiles
+php anonfiles
 ```
 
 ##### Upload a file
 
 ```
-anonfiles upload image.jpeg
+php anonfiles upload image.jpeg
 ```
 
 ##### Download a file
