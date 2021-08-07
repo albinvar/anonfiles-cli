@@ -6,7 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 use DOMDocument;
 use App\Helpers\Anonfiles;
-use Http;
+use Illuminate\Support\Facades\Http;
 
 class DownloadCommand extends Command
 {
@@ -65,23 +65,10 @@ class DownloadCommand extends Command
     	$this->task('checking if url is valid', function () {
 			$url = filter_var($this->link, FILTER_SANITIZE_URL);
 			
-			if (filter_var($url, FILTER_VALIDATE_URL) !== false) {
+			if (filter_var($url, FILTER_VALIDATE_URL) !== false && strpos($this->link, 'anonfiles.com') !== false) {
 				$this->status[] = true;
 				return true;
 			} 
-			$this->status[] = false;
-			return false;
-		});
-		
-		//end process
-		if(in_array(false, $this->status)) { return 1; }
-		
-		$this->task('checking if url belongs to anonfiles.com', function () {
-			
-			if (strpos($this->link, 'anonfiles.com') !== false) {
-				$this->status[] = true;
-				return true;
-			}
 			$this->status[] = false;
 			return false;
 		});
@@ -92,25 +79,46 @@ class DownloadCommand extends Command
 	}
 	
 	
-	public function showMetaData()
+	private function parseUrl()
 	{
-		$data = $this->getMetaData();
-		
-		$headers = ['Properties', 'Values'];
-
-        $data = [
-            ['filename', $this->anonfiles->getFileName()],
-            ['path', $this->anonfiles->path],
-            ['size', $this->anonfiles->getSize()],
-            ['last modified', $this->anonfiles->getLastModified()],
-        ];
-
-        $this->table($headers, $data);
+		$this->parsed = parse_url($this->link);
+		$this->parsed['params'] = explode('/', $this->parsed['path']);
+		return $this;
+	}
+	
+	private function getUniqueCode()
+	{
+		return $this->parsed['params'][1];
 	}
 	
 	public function getMetaData()
 	{
-		$response = Http::acceptJson()->get();
+		$code = $this->getUniqueCode();
+		$response = Http::acceptJson()->get("https://api.anonfiles.com/v2/file/{$code}/info");
+		return $response->object();
+	}
+	
+	public function showMetaData()
+	{
+		$this->fileData = $this->parseUrl()->getMetaData();
+		
+		if($this->fileData->status === false)
+		{
+			$this->newLine();
+			$this->error('File Not Found..!!!');
+			return 1;
+		}
+		
+		
+		$headers = ['Properties', 'Values'];
+
+        $data = [
+            ['filename', $this->fileData->data->file->metadata->name],
+            ['path', $this->fileData->data->file->url->full],
+            ['size', $this->fileData->data->file->metadata->size->readable],
+        ];
+
+        $this->table($headers, $data);
 	}
     
     /**
