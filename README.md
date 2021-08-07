@@ -1,4 +1,4 @@
-<h1 align="center"> Anon Files CLI </h1> <br>
+<h1 align="center"> Anonfiles CLI </h1> <br>
 <p align="center">
   <a href="https://anonfiles.com/">
     <img src="https://i.ibb.co/kJY81TL/Anon-Files.png" alt="logo" width="190" border="0">
@@ -16,16 +16,58 @@
 
 ## Introduction
 
-Anon Files CLI is a console application capable of uploading files directly from terminal. 
+Anon Files CLI can upload and download files using anonfiles.com API services.
 
 ## Features
 
 - Upload your files directly from CLI.
-
-## Screenshots
-
+- Rename and Upload Files.
+- Download your files directly from CLI. 
 
 ## Installation
+
+- download the cli app to your machine.
+
+##### using CURL
+
+```curl
+curl -s https://github.com/albinvar/anonfiles-cli/raw/main/builds/anonfiles -o anonfiles
+
+```
+##### using wget
+```wget
+wget https://github.com/albinvar/anonfiles-cli/raw/main/builds/anonfiles -O anonfiles
+```
+
+#####  composer
+
+Remember, installing with composer requires each and every libraries should be downloaded first.
+
+```
+composer global require albinvar/anonfiles-cli
+```
+
+## Usage
+
+The usage of anonfiles cli is very simple. 
+
+after installing properly, you would be able to use via anonfiles command globally.
+
+```
+anonfiles
+```
+
+##### Upload a file
+
+```
+anonfiles upload image.jpeg
+```
+
+##### Download a file
+
+```
+anonfiles download https://anonfiles.com/u1C0ebc4b0
+```
 
 ## Contributing
 
@@ -36,3 +78,4 @@ Please make sure to update tests as appropriate.
 ## License
 
 The project is certified using [MIT License](LICENSE)
+
