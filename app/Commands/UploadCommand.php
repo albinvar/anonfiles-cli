@@ -27,6 +27,8 @@ class UploadCommand extends Command
 
     protected $disk;
 
+    protected $newFilename = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -38,7 +40,7 @@ class UploadCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(): mixed
     {
         // show logo.
         $this->anonfiles->logo('Anonfiles', 'comment');
@@ -53,30 +55,46 @@ class UploadCommand extends Command
 
         $this->showFileMetaData();
 
+
+        if ($this->confirm('Do you want to rename file before uploading?')) {
+            $this->setNewFileName();
+        }
+
+
         if ($this->confirm('Do you want to upload file?')) {
             try {
-                $this->anonfiles->upload();
+                $this->anonfiles->upload($this->newFilename);
             } catch (\GuzzleHttp\Exception\ConnectException $e) {
                 $this->error($e->getMessage());
             } catch (\Exception $e) {
                 $this->error($e->getMessage());
             }
+        } else {
+            $this->error('aborting...');
+            return 0;
         }
 
-        $this->showResponse();
+        return $this->showResponse();
     }
 
-    public function showResponse(): void
+    private function setNewFileName(): void
+    {
+        $this->newFilename = $this->ask('Enter your new file name');
+    }
+
+    public function showResponse(): mixed
     {
         $json = $this->anonfiles->getResponse();
 
         if ($json->status) {
             $this->comment('   File uploaded ✅');
             $this->newline();
-            $this->info('link : '. $json->data->file->url->full);
+            $this->info(' link : '. $json->data->file->url->full);
             $this->newline();
+            return 0;
         } else {
             $this->error = 'Uploading failed...';
+            return 1;
         }
     }
 

@@ -10,10 +10,13 @@ use GuzzleHttp\Psr7\Request;
 use Laminas\Text\Figlet\Figlet;
 use LaravelZero\Framework\Commands\Command;
 use Storage;
+use DOMDocument;
 
 class Anonfiles extends Command
 {
     public $disk;
+
+    public $newFilename = null;
 
     public function __construct()
     {
@@ -63,6 +66,13 @@ default:
         $this->getMetaData();
     }
 
+    public function setFileExtenstion(): void
+    {
+        if (!is_null($this->newFilename)) {
+            $this->newFilename = $this->newFilename . '.' . pathinfo($this->path, PATHINFO_EXTENSION);
+        }
+    }
+
     public function createDisk()
     {
         try {
@@ -75,12 +85,14 @@ default:
 
     public function getFilename()
     {
+        if (!is_null($this->newFilename)) {
+            return $this->newFilename;
+        }
         return basename($this->path);
     }
 
     public function validate(): void
     {
-        
     }
 
     public function getSize()
@@ -110,8 +122,12 @@ default:
         return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }
 
-    public function upload(): void
+    public function upload($filename=null): void
     {
+        $this->newFilename = $filename;
+
+        $this->setFileExtenstion();
+
         $this->client = new Client(['http_error' => false, 'progress' => function (
             $downloadTotal,
             $downloadedBytes,
@@ -133,17 +149,45 @@ default:
             config('anonfiles.UPLOAD_ENDPOINT'),
             [],
             new Psr7\MultipartStream(
-            [
+                [
                 [
                     'name' => 'file',
                     'contents' => $stream,
                     'filename' => $this->getFilename(),
                 ],
             ]
-        )
+            )
         );
 
         $this->response = $this->client->send($request);
+    }
+
+
+    public function download($link=null, $pathToFile=null): mixed
+    {
+        $this->setFileExtenstion();
+
+        try {
+            $this->client = new Client(['http_error' => false, 'progress' => function (
+                $downloadTotal,
+                $downloadedBytes,
+                $uploadTotal,
+                $uploadedBytes
+            ): void {
+                echo "\033[5D";
+                $msg = $this->diffForHumans($uploadTotal) . ' / ' . $this->diffForHumans($downloadedBytes);
+                echo "      📥  Progress : {$msg} \r";
+            },
+        ]);
+            $resource = fopen($pathToFile, 'w');
+
+            $stream = Psr7\stream_for($resource);
+
+            $this->response = $this->client->request('GET', $link, ['save_to' => $stream]);
+        } catch (\Exception $e) {
+            return false;
+        }
+        return true;
     }
 
     public function getResponse()
@@ -155,5 +199,12 @@ default:
     {
         $this->fileLastModified = $this->disk->lastModified($this->file);
         $this->fileSize = $this->disk->size($this->file);
+    }
+
+    public function getDownloadLink($link=null)
+    {
+        $dom = new DOMDocument();
+        $dom->loadHTML(file_get_contents($link));
+        return $dom->getElementById('download-url')->getAttribute('href');
     }
 }
