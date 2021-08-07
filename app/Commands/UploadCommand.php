@@ -26,6 +26,8 @@ class UploadCommand extends Command
     protected $description = 'Upload files to anonfiles';
 
     protected $disk;
+    
+    protected $newFilename = null;
 
     public function __construct()
     {
@@ -52,10 +54,17 @@ class UploadCommand extends Command
         $this->validate();
 
         $this->showFileMetaData();
-
+        
+        
+        if($this->confirm('Do you want to rename file before uploading?'))
+        {
+        	$this->setNewFileName();
+        }
+            
+        
         if ($this->confirm('Do you want to upload file?')) {
             try {
-                $this->anonfiles->upload();
+                $this->anonfiles->upload($this->newFilename);
             } catch (\GuzzleHttp\Exception\ConnectException $e) {
                 $this->error($e->getMessage());
             } catch (\Exception $e) {
@@ -68,6 +77,11 @@ class UploadCommand extends Command
 
        return $this->showResponse();
     }
+    
+    private function setNewFileName() :void
+    {
+    	$this->newFilename = $this->ask('Enter your new file name');
+    }
 
     public function showResponse(): mixed
     {
@@ -76,7 +90,7 @@ class UploadCommand extends Command
         if ($json->status) {
             $this->comment('   File uploaded ✅');
             $this->newline();
-            $this->info('link : '. $json->data->file->url->full);
+            $this->info(' link : '. $json->data->file->url->full);
             $this->newline();
             return 0;
         } else {

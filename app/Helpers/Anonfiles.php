@@ -14,6 +14,8 @@ use Storage;
 class Anonfiles extends Command
 {
     public $disk;
+    
+    public $newFilename = null;
 
     public function __construct()
     {
@@ -62,6 +64,14 @@ default:
         $this->path = $this->disk->path($file);
         $this->getMetaData();
     }
+    
+    public function setFileExtenstion(): void
+    {
+       if(!is_null($this->newFilename))
+       {
+	      $this->newFilename = $this->newFilename . '.' . pathinfo($this->path, PATHINFO_EXTENSION);
+       }
+    }
 
     public function createDisk()
     {
@@ -75,6 +85,10 @@ default:
 
     public function getFilename()
     {
+    	if(!is_null($this->newFilename))
+	    {
+			return $this->newFilename;
+		}
         return basename($this->path);
     }
 
@@ -110,8 +124,12 @@ default:
         return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }
 
-    public function upload(): void
+    public function upload($filename=null): void
     {
+    	$this->newFilename = $filename;
+	    
+		$this->setFileExtenstion();
+	    
         $this->client = new Client(['http_error' => false, 'progress' => function (
             $downloadTotal,
             $downloadedBytes,
