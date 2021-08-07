@@ -38,7 +38,7 @@ class UploadCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(): mixed
     {
         // show logo.
         $this->anonfiles->logo('Anonfiles', 'comment');
@@ -61,12 +61,15 @@ class UploadCommand extends Command
             } catch (\Exception $e) {
                 $this->error($e->getMessage());
             }
+        } else {
+        	$this->error('aborting...');
+	        return 0;
         }
 
-        $this->showResponse();
+       return $this->showResponse();
     }
 
-    public function showResponse(): void
+    public function showResponse(): mixed
     {
         $json = $this->anonfiles->getResponse();
 
@@ -75,8 +78,10 @@ class UploadCommand extends Command
             $this->newline();
             $this->info('link : '. $json->data->file->url->full);
             $this->newline();
+            return 0;
         } else {
             $this->error = 'Uploading failed...';
+            return 1;
         }
     }
 
