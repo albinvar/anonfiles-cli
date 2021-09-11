@@ -55,11 +55,9 @@ class UploadCommand extends Command
 
         $this->showFileMetaData();
 
-
         if ($this->confirm('Do you want to rename file before uploading?')) {
             $this->setNewFileName();
         }
-
 
         if ($this->confirm('Do you want to upload file?')) {
             try {
@@ -77,11 +75,6 @@ class UploadCommand extends Command
         return $this->showResponse();
     }
 
-    private function setNewFileName(): void
-    {
-        $this->newFilename = $this->ask('Enter your new file name');
-    }
-
     public function showResponse(): mixed
     {
         $json = $this->anonfiles->getResponse();
@@ -92,10 +85,11 @@ class UploadCommand extends Command
             $this->info(' link : '. $json->data->file->url->full);
             $this->newline();
             return 0;
-        } else {
-            $this->error = 'Uploading failed...';
-            return 1;
         }
+        $this->error = 'Uploading failed...';
+        return 1;
+
+    
     }
 
     /**
@@ -104,6 +98,11 @@ class UploadCommand extends Command
     public function schedule(Schedule $schedule): void
     {
         // $schedule->command(static::class)->everyMinute();
+    }
+
+    private function setNewFileName(): void
+    {
+        $this->newFilename = $this->ask('Enter your new file name');
     }
 
     private function validate(): void

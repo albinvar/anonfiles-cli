@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Commands;
 
-use Illuminate\Console\Scheduling\Schedule;
-use LaravelZero\Framework\Commands\Command;
-use DOMDocument;
 use App\Anonfiles\Anonfiles;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Http;
+use LaravelZero\Framework\Commands\Command;
 
 class DownloadCommand extends Command
 {
@@ -36,10 +37,8 @@ class DownloadCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): mixed
     {
         // show logo.
         $this->anonfiles->logo('Anonfiles', 'comment');
@@ -49,48 +48,15 @@ class DownloadCommand extends Command
 
         $this->link = $this->argument('link');
 
-        $this->downloadPath = (is_null($this->option('path'))) ? getcwd() : $this->option('path');
+        $this->downloadPath = is_null($this->option('path')) ? getcwd() : $this->option('path');
 
         $this->info("  Selected URL : {$this->link}");
 
         $this->newLine();
 
-        if (!$this->validate()) {
+        if (! $this->validate()) {
             $this->showMetaData();
         }
-    }
-
-    private function validate()
-    {
-        $this->status = [];
-
-        $this->task('checking if url is valid', function () {
-            $url = filter_var($this->link, FILTER_SANITIZE_URL);
-
-            if (filter_var($url, FILTER_VALIDATE_URL) !== false && strpos($this->link, 'anonfiles.com') !== false) {
-                $this->status[] = true;
-                return true;
-            }
-            $this->status[] = false;
-            return false;
-        });
-
-
-        //end process
-        return in_array(false, $this->status) ? 1 : 0;
-    }
-
-
-    private function parseUrl()
-    {
-        $this->parsed = parse_url($this->link);
-        $this->parsed['params'] = explode('/', $this->parsed['path']);
-        return $this;
-    }
-
-    private function getUniqueCode()
-    {
-        return $this->parsed['params'][1];
     }
 
     public function getMetaData()
@@ -110,7 +76,6 @@ class DownloadCommand extends Command
             return 1;
         }
 
-
         $headers = ['Properties', 'Values'];
 
         $data = [
@@ -125,26 +90,55 @@ class DownloadCommand extends Command
             $status = $this->anonfiles->download($this->anonfiles->getDownloadLink($this->link), $this->downloadPath .'/'. $this->fileData->data->file->metadata->name);
 
             if ($status) {
-            	$this->newline();
-            	$this->newline();
+                $this->newline();
+                $this->newline();
                 $this->comment(' File downloaded ✅');
                 $this->newline();
                 return 0;
-            } else {
-                $this->error = ' Downloading failed...';
-                return 1;
             }
+            $this->error = ' Downloading failed...';
+            return 1;
+
+        
         }
     }
 
     /**
      * Define the command's schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
-     * @return void
      */
     public function schedule(Schedule $schedule): void
     {
         // $schedule->command(static::class)->everyMinute();
+    }
+
+    private function validate()
+    {
+        $this->status = [];
+
+        $this->task('checking if url is valid', function () {
+            $url = filter_var($this->link, FILTER_SANITIZE_URL);
+
+            if (filter_var($url, FILTER_VALIDATE_URL) !== false && strpos($this->link, 'anonfiles.com') !== false) {
+                $this->status[] = true;
+                return true;
+            }
+            $this->status[] = false;
+            return false;
+        });
+
+        //end process
+        return in_array(false, $this->status) ? 1 : 0;
+    }
+
+    private function parseUrl()
+    {
+        $this->parsed = parse_url($this->link);
+        $this->parsed['params'] = explode('/', $this->parsed['path']);
+        return $this;
+    }
+
+    private function getUniqueCode()
+    {
+        return $this->parsed['params'][1];
     }
 }
