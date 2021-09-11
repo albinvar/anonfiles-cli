@@ -121,10 +121,12 @@ class DownloadCommand extends Command
 
         $this->table($headers, $data);
 
-        if ($this->confirm('Are you sure you want to Download this file?')) {
+        if ($this->confirm('Are you sure you want to Download this file?', true)) {
             $status = $this->anonfiles->download($this->anonfiles->getDownloadLink($this->link), $this->downloadPath .'/'. $this->fileData->data->file->metadata->name);
 
             if ($status) {
+            	$this->newline();
+            	$this->newline();
                 $this->comment(' File downloaded ✅');
                 $this->newline();
                 return 0;
