@@ -38,7 +38,7 @@ class DownloadCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): mixed
+    public function handle() 
     {
         // show logo.
         $this->anonfiles->logo('Anonfiles', 'comment');
