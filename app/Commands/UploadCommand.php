@@ -78,20 +78,24 @@ class UploadCommand extends Command
     public function showResponse(): mixed
     {
         $json = $this->anonfiles->getResponse();
-
+        
         if (! is_null($json) && $json->status) {
             $this->comment('   File uploaded ✅');
             $this->newline();
             $this->info(' link : '. $json->data->file->url->full);
             $this->newline();
             return 0;
+        } elseif(! is_null($json) && ! $json->status) {
+        	$this->error("({$json->error->code}) {$json->error->message})");
+	        return 1;
         }
+        
         $this->error('Uploading failed due to a client-side error...');
         return 1;
 
     
     }
-
+   
     /**
      * Define the command's schedule.
      */
