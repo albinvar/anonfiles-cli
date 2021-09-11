@@ -17,6 +17,8 @@ class Anonfiles extends Command
     public $disk;
 
     public $newFilename = null;
+    
+    public $response;
 
     public function __construct()
     {
@@ -140,6 +142,8 @@ default:
             echo "     📂  Progress : {$msg} \r";
         },
         ]);
+        
+        try {
         $resource = $this->disk->get($this->file);
 
         $stream = Psr7\stream_for($resource);
@@ -159,7 +163,10 @@ default:
             )
         );
 
-        $this->response = $this->client->send($request);
+	        $this->response = $this->client->send($request);
+        } catch(\GuzzleHttp\Exception\RequestException $e) {
+        	
+        }
     }
 
     public function download($link = null, $pathToFile = null): mixed
@@ -191,7 +198,7 @@ default:
 
     public function getResponse()
     {
-        return json_decode($this->response->getBody()->getContents());
+    	return  isset($this->response) ? json_decode($this->response->getBody()->getContents()) : null;
     }
 
     public function getDownloadLink($link = null)

@@ -79,14 +79,14 @@ class UploadCommand extends Command
     {
         $json = $this->anonfiles->getResponse();
 
-        if ($json->status) {
+        if (! is_null($json) && $json->status) {
             $this->comment('   File uploaded ✅');
             $this->newline();
             $this->info(' link : '. $json->data->file->url->full);
             $this->newline();
             return 0;
         }
-        $this->error = 'Uploading failed...';
+        $this->error('Uploading failed due to a client-side error...');
         return 1;
 
     
