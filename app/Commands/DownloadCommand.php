@@ -89,6 +89,9 @@ class DownloadCommand extends Command
         if ($this->confirm('Are you sure you want to Download this file?', true)) {
             $status = $this->anonfiles->download($this->anonfiles->getDownloadLink($this->link), $this->downloadPath .'/'. $this->fileData->data->file->metadata->name);
 
+			$this->renameFile();
+
+
             if ($status) {
                 $this->newline();
                 $this->newline();
@@ -102,6 +105,14 @@ class DownloadCommand extends Command
         
         }
     }
+    
+    private function renameFile()
+    {
+    	$filepath = $this->downloadPath .'/'. $this->fileData->data->file->metadata->name;
+    	$mime = mime_content_type($filepath);
+		rename($filepath, $this->downloadPath .'/'. $this->fileData->data->file->metadata->name . $this->mime2ext($mime));
+    }
+    
 
     /**
      * Define the command's schedule.
@@ -141,4 +152,11 @@ class DownloadCommand extends Command
     {
         return $this->parsed['params'][1];
     }
+    
+    private function mime2ext($mime) {
+    	$mime_map = $this->anonfiles::MIME_MAP;
+    return isset($mime_map[$mime]) ? '.' . $mime_map[$mime] : null;
+}
+    
+    
 }

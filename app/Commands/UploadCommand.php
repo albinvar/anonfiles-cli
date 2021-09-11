@@ -59,7 +59,7 @@ class UploadCommand extends Command
             $this->setNewFileName();
         }
 
-        if ($this->confirm('Do you want to upload file?')) {
+        if ($this->confirm('Do you want to upload file?', true)) {
             try {
                 $this->anonfiles->upload($this->newFilename);
             } catch (\GuzzleHttp\Exception\ConnectException $e) {
