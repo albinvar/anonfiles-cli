@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Helpers;
+namespace App\Anonfiles;
 
+use DOMDocument;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Request;
 use Laminas\Text\Figlet\Figlet;
 use LaravelZero\Framework\Commands\Command;
 use Storage;
-use DOMDocument;
 
 class Anonfiles extends Command
 {
@@ -51,7 +51,7 @@ default:
 
     break;
 
-}
+        }
     }
 
     public function clear(): mixed
@@ -68,8 +68,8 @@ default:
 
     public function setFileExtenstion(): void
     {
-        if (!is_null($this->newFilename)) {
-            $this->newFilename = $this->newFilename . '.' . pathinfo($this->path, PATHINFO_EXTENSION);
+        if (! is_null($this->newFilename)) {
+            $this->newFilename .= '.' . pathinfo($this->path, PATHINFO_EXTENSION);
         }
     }
 
@@ -85,7 +85,7 @@ default:
 
     public function getFilename()
     {
-        if (!is_null($this->newFilename)) {
+        if (! is_null($this->newFilename)) {
             return $this->newFilename;
         }
         return basename($this->path);
@@ -122,7 +122,7 @@ default:
         return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }
 
-    public function upload($filename=null): void
+    public function upload($filename = null): void
     {
         $this->newFilename = $filename;
 
@@ -150,20 +150,19 @@ default:
             [],
             new Psr7\MultipartStream(
                 [
-                [
-                    'name' => 'file',
-                    'contents' => $stream,
-                    'filename' => $this->getFilename(),
-                ],
-            ]
+                    [
+                        'name' => 'file',
+                        'contents' => $stream,
+                        'filename' => $this->getFilename(),
+                    ],
+                ]
             )
         );
 
         $this->response = $this->client->send($request);
     }
 
-
-    public function download($link=null, $pathToFile=null): mixed
+    public function download($link = null, $pathToFile = null): mixed
     {
         $this->setFileExtenstion();
 
@@ -178,7 +177,7 @@ default:
                 $msg = $this->diffForHumans($uploadTotal) . ' / ' . $this->diffForHumans($downloadedBytes);
                 echo "      📥  Progress : {$msg} \r";
             },
-        ]);
+            ]);
             $resource = fopen($pathToFile, 'w');
 
             $stream = Psr7\stream_for($resource);
@@ -195,16 +194,16 @@ default:
         return json_decode($this->response->getBody()->getContents());
     }
 
-    private function getMetadata(): void
-    {
-        $this->fileLastModified = $this->disk->lastModified($this->file);
-        $this->fileSize = $this->disk->size($this->file);
-    }
-
-    public function getDownloadLink($link=null)
+    public function getDownloadLink($link = null)
     {
         $dom = new DOMDocument();
         $dom->loadHTML(file_get_contents($link));
         return $dom->getElementById('download-url')->getAttribute('href');
+    }
+
+    private function getMetadata(): void
+    {
+        $this->fileLastModified = $this->disk->lastModified($this->file);
+        $this->fileSize = $this->disk->size($this->file);
     }
 }
