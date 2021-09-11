@@ -3,6 +3,12 @@
   <a href="https://anonfiles.com/">
     <img src="https://i.ibb.co/kJY81TL/Anon-Files.png" alt="logo" width="190" border="0">
   </a>
+
+<br> 
+
+<img src="https://img.shields.io/github/v/release/albinvar/anonfiles-cli">
+<img src="https://img.shields.io/github/repo-size/albinvar/anonfiles-cli">
+<a href="LICENSE"><img src="https://img.shields.io/apm/l/Github"></a>
 </p>
 
 ## Table of Contents
@@ -16,17 +22,17 @@
 
 ## Introduction
 
-Anon Files CLI can upload and download files using anonfiles.com API services.
+Anon Files CLI can upload and download files from anonfiles.com API within your command line interface.
 
 ## Features
 
 - Upload your files directly from CLI.
-- Rename and Upload Files.
-- Download your files directly from CLI. 
+- Rename before uploading.
+- Download your files directly to a specified folder. 
 
 ## Installation
 
-- download the cli app to your machine.
+- download the phar file to your machine.
 
 ##### using CURL
 
@@ -48,9 +54,9 @@ composer global require albinvar/anonfiles-cli
 
 ## Usage
 
-Using anonfiles cli is very simple. 
+Using anonfiles CLI is very simple. 
 
-after installing properly, you would be able to use via anonfiles command globally.
+its better to include the cli to your bin of your specified OS.
 
 ```
 php anonfiles
@@ -65,7 +71,7 @@ php anonfiles upload image.jpeg
 ##### Download a file
 
 ```
-anonfiles download https://anonfiles.com/u1C0ebc4b0
+php anonfiles download https://anonfiles.com/u1C0ebc4b0
 ```
 
 ## Contributing
@@ -77,4 +83,3 @@ Please make sure to update tests as appropriate.
 ## License
 
 The project is certified using [MIT License](LICENSE)
-
