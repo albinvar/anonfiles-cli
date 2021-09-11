@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Helpers;
+namespace App\Anonfiles;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;

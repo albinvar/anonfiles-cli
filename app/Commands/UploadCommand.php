@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use App\Helpers\Anonfiles;
+use App\Anonfiles\Anonfiles;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 
