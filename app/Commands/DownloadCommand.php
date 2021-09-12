@@ -18,6 +18,7 @@ class DownloadCommand extends Command
      */
     protected $signature = 'download
 							{link}
+							{--tor}
 							{-p|--path=}';
 
     /**
@@ -92,8 +93,7 @@ class DownloadCommand extends Command
 	
 			$this->parseDownloadLink();
 	
-            $status = $this->anonfiles->download($this->downloadLink, $this->downloadPath .'/'. $this->downloadFilename);
-
+            $status = $this->anonfiles->download($this->downloadLink, $this->downloadPath .'/'. $this->downloadFilename, $this->option('tor'));
 
             if ($status) {
                 $this->newline();

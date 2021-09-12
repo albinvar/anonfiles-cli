@@ -80,7 +80,7 @@ class UploadCommand extends Command
     public function showResponse(): mixed
     {
         $json = $this->anonfiles->getResponse();
-        
+
         if (! is_null($json) && $json->status) {
             $this->comment('   File uploaded ✅');
             $this->newline();

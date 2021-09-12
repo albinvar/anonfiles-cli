@@ -363,7 +363,7 @@ default:
         $request = new Request(
             'POST',
             config('anonfiles.UPLOAD_ENDPOINT'),
-            $this->getSettings(),
+            $this->getSettings($proxy),
             new Psr7\MultipartStream(
                 [
                     [
@@ -375,15 +375,15 @@ default:
             )
         );
 
-	        $this->response = $this->client->send($request, $this->getSettings());
+	        $this->response = $this->client->send($request, $this->getSettings($proxy));
         } catch(\GuzzleHttp\Exception\RequestException $e) {
         	
         }
     }
 
-    public function download($link = null, $pathToFile = null): mixed
+    public function download($link = null, $pathToFile = null, $proxy = false): mixed
     {
-        $this->setFileExtenstion();
+        //$this->setFileExtenstion();
 
         try {
             $this->client = new Client(['http_error' => false, 'progress' => function (
@@ -397,11 +397,23 @@ default:
                 echo "      📥  Progress : {$msg} \r";
             },
             ]);
+            
+            if($proxy === true && $this->checkIfCanConnectToSocksProxy($this->getSettings($proxy)) === false)
+			{
+				$this->error('Cannot connect to tor proxy, please start tor on your device.');
+				exit();
+			}
+            
+            
             $resource = fopen($pathToFile, 'w');
 
             $stream = Psr7\stream_for($resource);
-
-            $this->response = $this->client->request('GET', $link, ['save_to' => $stream]);
+            
+            $array = ['save_to' => $stream];
+            $array += $this->getSettings($proxy);
+            
+            $this->response = $this->client->request('GET', $link, $array);
+            
         } catch (\Exception $e) {
             return false;
         }
