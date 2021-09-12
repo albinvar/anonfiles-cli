@@ -15,7 +15,6 @@
 
 - [Introduction](#introduction)
 - [Features](#features)
-- [Screenshots](#screenshots)
 - [Installation](#installation)
 - [Contributing](#contributing)
 - [License](#license)
@@ -68,10 +67,35 @@ php anonfiles
 php anonfiles upload image.jpeg
 ```
 
+you can also upload your files through socks5  proxy. by default its configured at `socks5h://127.0.0.1:9050`. It will be customisable in future updates.
+
+you may now upload the files using  `--tor` option.
+
+```
+php anonfiles upload folder/image.jpeg --tor
+```
+
+
 ##### Download a file
+
+downloading a file is simple,
 
 ```
 php anonfiles download https://anonfiles.com/u1C0ebc4b0
+```
+
+- the link should be only from anonfiles.com
+
+you may use `--path` option to change your download path.
+
+```
+php anonfiles download https://anonfiles.com/u1C0ebc4b0 --path="/sdcard/downloads"
+```
+
+similarly, you can also download your files using tor socks proxy using `--tor` option.
+
+```
+php anonfiles download https://anonfiles.com/u1C0ebc4b0  --tor
 ```
 
 ## Contributing
