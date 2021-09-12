@@ -16,7 +16,8 @@ class UploadCommand extends Command
      * @var string
      */
     protected $signature = 'upload
-							{filename}';
+							{filename}
+							{--tor}';
 
     /**
      * The description of the command.
@@ -60,8 +61,9 @@ class UploadCommand extends Command
         }
 
         if ($this->confirm('Do you want to upload file?', true)) {
+	        
             try {
-                $this->anonfiles->upload($this->newFilename);
+                $this->anonfiles->upload($this->newFilename, $this->option('tor'));
             } catch (\GuzzleHttp\Exception\ConnectException $e) {
                 $this->error($e->getMessage());
             } catch (\Exception $e) {

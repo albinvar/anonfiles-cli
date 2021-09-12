@@ -20,6 +20,8 @@ class Anonfiles extends Command
     
     public $response;
     
+    public static $proxy = 'socks5h://127.0.0.1:9050';
+    
     const MIME_MAP = [
         'video/3gpp2'                                                               => '3g2',
         'video/3gp'                                                                 => '3gp',
@@ -310,8 +312,24 @@ default:
         $factor = floor((strlen(strval($bytes)) - 1) / 3);
         return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
     }
+    
+    public function checkIfCanConnectToSocksProxy(): bool
+    {
+    	try {
+	        $this->client->request('GET', 'http://checkip.amazonaws.com/', $this->getSettings(true));
+			return true;
+        } catch(\Exception $e) {
+        	return false;
+        }
+    }
+    
+    public function getSettings($proxy = false)
+    {
+    	return ($proxy === true) ? ['proxy' => static::$proxy]
+					: [] ;
+    }
 
-    public function upload($filename = null): void
+    public function upload($filename = null, $proxy = false): void
     {
         $this->newFilename = $filename;
 
@@ -329,16 +347,23 @@ default:
             echo "     📂  Progress : {$msg} \r";
         },
         ]);
+				
+        if($proxy === true && $this->checkIfCanConnectToSocksProxy($this->getSettings()) === false)
+		{
+				$this->error('Cannot connect to tor proxy, please start tor on your device.');
+				exit();
+		}
+		
         
         try {
         $resource = $this->disk->get($this->file);
 
         $stream = Psr7\stream_for($resource);
-
+		
         $request = new Request(
             'POST',
             config('anonfiles.UPLOAD_ENDPOINT'),
-            [],
+            $this->getSettings(),
             new Psr7\MultipartStream(
                 [
                     [
@@ -350,7 +375,7 @@ default:
             )
         );
 
-	        $this->response = $this->client->send($request);
+	        $this->response = $this->client->send($request, $this->getSettings());
         } catch(\GuzzleHttp\Exception\RequestException $e) {
         	
         }
