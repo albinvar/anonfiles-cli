@@ -61,7 +61,6 @@ class UploadCommand extends Command
         }
 
         if ($this->confirm('Do you want to upload file?', true)) {
-	        
             try {
                 $this->anonfiles->upload($this->newFilename, $this->option('tor'));
             } catch (\GuzzleHttp\Exception\ConnectException $e) {
@@ -87,17 +86,16 @@ class UploadCommand extends Command
             $this->info(' link : '. $json->data->file->url->full);
             $this->newline();
             return 0;
-        } elseif(! is_null($json) && ! $json->status) {
-        	$this->error("({$json->error->code}) {$json->error->message})");
-	        return 1;
         }
-        
+        if (! is_null($json) && ! $json->status) {
+            $this->error("({$json->error->code}) {$json->error->message})");
+            return 1;
+        }
+
         $this->error('Uploading failed due to a client-side error...');
         return 1;
-
-    
     }
-   
+
     /**
      * Define the command's schedule.
      */

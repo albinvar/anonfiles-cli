@@ -39,7 +39,7 @@ class DownloadCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle() 
+    public function handle(): void
     {
         // show logo.
         $this->anonfiles->logo('Anonfiles', 'comment');
@@ -88,11 +88,10 @@ class DownloadCommand extends Command
         $this->table($headers, $data);
 
         if ($this->confirm('Are you sure you want to Download this file?', true)) {
-        	
-	        $this->downloadLink = $this->anonfiles->getDownloadLink($this->link);
-	
-			$this->parseDownloadLink();
-	
+            $this->downloadLink = $this->anonfiles->getDownloadLink($this->link);
+
+            $this->parseDownloadLink();
+
             $status = $this->anonfiles->download($this->downloadLink, $this->downloadPath .'/'. $this->downloadFilename, $this->option('tor'));
 
             if ($status) {
@@ -104,11 +103,8 @@ class DownloadCommand extends Command
             }
             $this->error = ' Downloading failed...';
             return 1;
-
-        
         }
     }
-    
 
     /**
      * Define the command's schedule.
@@ -143,7 +139,7 @@ class DownloadCommand extends Command
         $this->parsed['params'] = explode('/', $this->parsed['path']);
         return $this;
     }
-    
+
     private function parseDownloadLink()
     {
         $this->parsedDownloadLink = parse_url($this->downloadLink);
@@ -157,5 +153,4 @@ class DownloadCommand extends Command
     {
         return $this->parsed['params'][1] ?? null;
     }
-    
 }
