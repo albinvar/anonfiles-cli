@@ -87,9 +87,12 @@ class DownloadCommand extends Command
         $this->table($headers, $data);
 
         if ($this->confirm('Are you sure you want to Download this file?', true)) {
-            $status = $this->anonfiles->download($this->anonfiles->getDownloadLink($this->link), $this->downloadPath .'/'. $this->fileData->data->file->metadata->name);
-
-			$this->renameFile();
+        	
+	        $this->downloadLink = $this->anonfiles->getDownloadLink($this->link);
+	
+			$this->parseDownloadLink();
+	
+            $status = $this->anonfiles->download($this->downloadLink, $this->downloadPath .'/'. $this->downloadFilename);
 
 
             if ($status) {
@@ -104,13 +107,6 @@ class DownloadCommand extends Command
 
         
         }
-    }
-    
-    private function renameFile()
-    {
-    	$filepath = $this->downloadPath .'/'. $this->fileData->data->file->metadata->name;
-    	$mime = mime_content_type($filepath);
-		rename($filepath, $this->downloadPath .'/'. $this->fileData->data->file->metadata->name . $this->mime2ext($mime));
     }
     
 
@@ -147,16 +143,19 @@ class DownloadCommand extends Command
         $this->parsed['params'] = explode('/', $this->parsed['path']);
         return $this;
     }
+    
+    private function parseDownloadLink()
+    {
+        $this->parsedDownloadLink = parse_url($this->downloadLink);
+        $this->parsedDownloadLink['params'] = explode('/', $this->parsedDownloadLink['path']);
+        $keyOfLastElement = key(array_slice($this->parsedDownloadLink['params'], -1, 1, true));
+        $this->downloadFilename = $this->parsedDownloadLink['params'][$keyOfLastElement];
+        return $this;
+    }
 
     private function getUniqueCode()
     {
-        return $this->parsed['params'][1];
+        return $this->parsed['params'][1] ?? null;
     }
-    
-    private function mime2ext($mime) {
-    	$mime_map = $this->anonfiles::MIME_MAP;
-    return isset($mime_map[$mime]) ? '.' . $mime_map[$mime] : null;
-}
-    
     
 }
