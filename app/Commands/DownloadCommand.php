@@ -27,26 +27,25 @@ class DownloadCommand extends Command
      * @var string
      */
     protected $description = 'Command description';
-    
-    
+
     protected $anonfiles;
-    
+
     protected $link;
-    
+
     protected $downloadPath;
-    
+
     protected $error;
-    
+
     protected $status;
-    
+
     protected $parsed;
-    
+
     protected $parsedDownloadLink;
-    
+
     protected $fileData;
-    
+
     protected $downloadLink;
-    
+
     protected $downloadFilename;
 
     public function __construct()

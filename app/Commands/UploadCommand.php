@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Commands;
 
 use Anonfiles\Anonfiles;
-use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 
 class UploadCommand extends Command
@@ -27,9 +26,9 @@ class UploadCommand extends Command
     protected $description = 'Upload files to anonfiles';
 
     protected $disk;
-    
+
     protected $anonfiles;
-    
+
     protected $file;
 
     protected $newFilename = null;
@@ -79,37 +78,8 @@ class UploadCommand extends Command
 
         return $this->showResponse();
     }
-    
-    private function setNewFileName(): void
-    {
-        $this->newFilename = $this->ask('Enter your new file name');
-    }
-    
-    private function showFileMetaData(): void
-    {
-        $headers = ['Properties', 'Values'];
 
-        $data = [
-            ['filename', $this->anonfiles->getFileName()],
-            ['path', $this->anonfiles->path],
-            ['size', $this->anonfiles->getSize()],
-            ['last modified', $this->anonfiles->getLastModified()],
-        ];
-
-        $this->table($headers, $data);
-    }
-    
-    private function validate(): void
-    {
-        if (! $this->anonfiles->checkIfFileExists($this->file)) {
-            $this->error("File doesn't exist.");
-            exit(1);
-        }
-
-        $this->anonfiles->setFile($this->file);
-    }
-
-    public function showResponse(): void
+    public function showResponse(): mixed
     {
         $json = $this->anonfiles->getResponse();
 
@@ -127,5 +97,34 @@ class UploadCommand extends Command
 
         $this->error('Uploading failed due to a client-side error...');
         exit(1);
+    }
+
+    private function setNewFileName(): void
+    {
+        $this->newFilename = $this->ask('Enter your new file name');
+    }
+
+    private function showFileMetaData(): void
+    {
+        $headers = ['Properties', 'Values'];
+
+        $data = [
+            ['filename', $this->anonfiles->getFileName()],
+            ['path', $this->anonfiles->path],
+            ['size', $this->anonfiles->getSize()],
+            ['last modified', $this->anonfiles->getLastModified()],
+        ];
+
+        $this->table($headers, $data);
+    }
+
+    private function validate(): void
+    {
+        if (! $this->anonfiles->checkIfFileExists($this->file)) {
+            $this->error("File doesn't exist.");
+            exit(1);
+        }
+
+        $this->anonfiles->setFile($this->file);
     }
 }

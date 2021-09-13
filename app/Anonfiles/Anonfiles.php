@@ -8,29 +8,29 @@ use DOMDocument;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Request;
+use Illuminate\Support\Facades\Storage;
 use Laminas\Text\Figlet\Figlet;
 use LaravelZero\Framework\Commands\Command;
-use Illuminate\Support\Facades\Storage; 
 
 class Anonfiles extends Command
 {
-    protected $disk;
-    
+
     public $file;
-    
+
     public $path;
-    
+
     public $fileSize;
-    
+
     public $fileLastModified;
-    
-    protected $client;
 
     public $newFilename = null;
 
-    protected $response;
-
     public static $proxy = 'socks5h://127.0.0.1:9050';
+    protected $disk;
+
+    protected $client;
+
+    protected $response;
 
     public function __construct()
     {
@@ -43,23 +43,23 @@ class Anonfiles extends Command
         $font = is_null($font) ? config('logo.font') : $font;
         $figlet = new Figlet();
         $logo = $figlet->setFont($font)->render($name);
-        
+
         switch ($type) {
             case 'info':
-				$this->info($logo);
+                $this->info($logo);
             break;
-			case 'error':
-				$this->error($logo);
-		    break;
-			case 'comment':
-				$this->comment($logo);
-			break;
-			case 'question':
-				$this->question($logo);
-			break;
-			default:
-				$this->line($logo);
-			break;
+            case 'error':
+                $this->error($logo);
+                break;
+            case 'comment':
+                $this->comment($logo);
+                break;
+            case 'question':
+                $this->question($logo);
+                break;
+            default:
+                $this->line($logo);
+                break;
 
         }
     }
@@ -169,10 +169,10 @@ class Anonfiles extends Command
             $stream = Psr7\stream_for($resource);
 
             $request = new Request(
-            'POST',
-            config('anonfiles.UPLOAD_ENDPOINT'),
-            $this->getSettings($proxy),
-            new Psr7\MultipartStream(
+                'POST',
+                config('anonfiles.UPLOAD_ENDPOINT'),
+                $this->getSettings($proxy),
+                new Psr7\MultipartStream(
                 [
                     [
                         'name' => 'file',
@@ -181,7 +181,7 @@ class Anonfiles extends Command
                     ],
                 ]
             )
-        );
+            );
 
             $this->response = $this->client->send($request, $this->getSettings($proxy));
         } catch (\GuzzleHttp\Exception\RequestException $e) {
@@ -190,7 +190,6 @@ class Anonfiles extends Command
 
     public function download($link = null, $pathToFile = null, $proxy = false): mixed
     {
-
         try {
             $this->client = new Client(['http_error' => false, 'progress' => function (
                 $downloadTotal,
@@ -217,7 +216,6 @@ class Anonfiles extends Command
             $array += $this->getSettings($proxy);
 
             $this->response = $this->client->request('GET', $link, $array);
-            
         } catch (\Exception $e) {
             return false;
         }
