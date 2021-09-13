@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Anonfiles extends Command
 {
-    public $disk;
+    protected $disk;
     
     public $file;
     
@@ -24,11 +24,11 @@ class Anonfiles extends Command
     
     public $fileLastModified;
     
-    public $client;
+    protected $client;
 
     public $newFilename = null;
 
-    public $response;
+    protected $response;
 
     public static $proxy = 'socks5h://127.0.0.1:9050';
 
@@ -158,9 +158,9 @@ class Anonfiles extends Command
         },
         ]);
 
-        if ($proxy === true && $this->checkIfCanConnectToSocksProxy()){
+        if ($proxy === true && $this->checkIfCanConnectToSocksProxy() === false) {
             $this->error('Cannot connect to tor proxy, please start tor on your device.');
-            exit;
+            exit(1);
         }
 
         try {
@@ -204,9 +204,9 @@ class Anonfiles extends Command
             },
             ]);
 
-            if ($proxy === true && $this->checkIfCanConnectToSocksProxy()) {
+            if ($proxy === true && $this->checkIfCanConnectToSocksProxy() === false) {
                 $this->error('Cannot connect to tor proxy, please start tor on your device.');
-                exit;
+                exit(1);
             }
 
             $resource = fopen($pathToFile, 'w');
@@ -217,6 +217,7 @@ class Anonfiles extends Command
             $array += $this->getSettings($proxy);
 
             $this->response = $this->client->request('GET', $link, $array);
+            
         } catch (\Exception $e) {
             return false;
         }
