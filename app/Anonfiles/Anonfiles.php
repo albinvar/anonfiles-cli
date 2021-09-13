@@ -2,25 +2,35 @@
 
 declare(strict_types=1);
 
-namespace App\Anonfiles;
+namespace Anonfiles;
 
 use DOMDocument;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Request;
+use Illuminate\Support\Facades\Storage;
 use Laminas\Text\Figlet\Figlet;
 use LaravelZero\Framework\Commands\Command;
-use Storage;
 
 class Anonfiles extends Command
 {
-    public $disk;
+
+    public $file;
+
+    public $path;
+
+    public $fileSize;
+
+    public $fileLastModified;
 
     public $newFilename = null;
 
-    public $response;
-
     public static $proxy = 'socks5h://127.0.0.1:9050';
+    protected $disk;
+
+    protected $client;
+
+    protected $response;
 
     public function __construct()
     {
@@ -33,23 +43,23 @@ class Anonfiles extends Command
         $font = is_null($font) ? config('logo.font') : $font;
         $figlet = new Figlet();
         $logo = $figlet->setFont($font)->render($name);
-        
+
         switch ($type) {
             case 'info':
-				$this->info($logo);
+                $this->info($logo);
             break;
-			case 'error':
-				$this->error($logo);
-		    break;
-			case 'comment':
-				$this->comment($logo);
-			break;
-			case 'question':
-				$this->question($logo);
-			break;
-			default:
-				$this->line($logo);
-			break;
+            case 'error':
+                $this->error($logo);
+                break;
+            case 'comment':
+                $this->comment($logo);
+                break;
+            case 'question':
+                $this->question($logo);
+                break;
+            default:
+                $this->line($logo);
+                break;
 
         }
     }
@@ -135,8 +145,6 @@ class Anonfiles extends Command
     {
         $this->newFilename = $filename;
 
-        $this->setFileExtenstion();
-
         $this->client = new Client(['http_error' => false, 'progress' => function (
             $downloadTotal,
             $downloadedBytes,
@@ -150,9 +158,9 @@ class Anonfiles extends Command
         },
         ]);
 
-        if ($proxy === true && $this->checkIfCanConnectToSocksProxy($this->getSettings()) === false) {
+        if ($proxy === true && $this->checkIfCanConnectToSocksProxy() === false) {
             $this->error('Cannot connect to tor proxy, please start tor on your device.');
-            exit;
+            exit(1);
         }
 
         try {
@@ -161,10 +169,10 @@ class Anonfiles extends Command
             $stream = Psr7\stream_for($resource);
 
             $request = new Request(
-            'POST',
-            config('anonfiles.UPLOAD_ENDPOINT'),
-            $this->getSettings($proxy),
-            new Psr7\MultipartStream(
+                'POST',
+                config('anonfiles.UPLOAD_ENDPOINT'),
+                $this->getSettings($proxy),
+                new Psr7\MultipartStream(
                 [
                     [
                         'name' => 'file',
@@ -173,7 +181,7 @@ class Anonfiles extends Command
                     ],
                 ]
             )
-        );
+            );
 
             $this->response = $this->client->send($request, $this->getSettings($proxy));
         } catch (\GuzzleHttp\Exception\RequestException $e) {
@@ -182,7 +190,6 @@ class Anonfiles extends Command
 
     public function download($link = null, $pathToFile = null, $proxy = false): mixed
     {
-
         try {
             $this->client = new Client(['http_error' => false, 'progress' => function (
                 $downloadTotal,
@@ -196,9 +203,9 @@ class Anonfiles extends Command
             },
             ]);
 
-            if ($proxy === true && $this->checkIfCanConnectToSocksProxy($this->getSettings($proxy)) === false) {
+            if ($proxy === true && $this->checkIfCanConnectToSocksProxy() === false) {
                 $this->error('Cannot connect to tor proxy, please start tor on your device.');
-                exit;
+                exit(1);
             }
 
             $resource = fopen($pathToFile, 'w');

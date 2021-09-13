@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use App\Anonfiles\Anonfiles;
-use Illuminate\Console\Scheduling\Schedule;
+use Anonfiles\Anonfiles;
 use LaravelZero\Framework\Commands\Command;
 
 class UploadCommand extends Command
@@ -27,6 +26,10 @@ class UploadCommand extends Command
     protected $description = 'Upload files to anonfiles';
 
     protected $disk;
+
+    protected $anonfiles;
+
+    protected $file;
 
     protected $newFilename = null;
 
@@ -85,38 +88,20 @@ class UploadCommand extends Command
             $this->newline();
             $this->info(' link : '. $json->data->file->url->full);
             $this->newline();
-            return 0;
+            exit(0);
         }
         if (! is_null($json) && ! $json->status) {
             $this->error("({$json->error->code}) {$json->error->message})");
-            return 1;
+            exit(1);
         }
 
         $this->error('Uploading failed due to a client-side error...');
-        return 1;
-    }
-
-    /**
-     * Define the command's schedule.
-     */
-    public function schedule(Schedule $schedule): void
-    {
-        // $schedule->command(static::class)->everyMinute();
+        exit(1);
     }
 
     private function setNewFileName(): void
     {
         $this->newFilename = $this->ask('Enter your new file name');
-    }
-
-    private function validate(): void
-    {
-        if (! $this->anonfiles->checkIfFileExists($this->file)) {
-            $this->error("File doesn't exist.");
-            exit;
-        }
-
-        $this->anonfiles->setFile($this->file);
     }
 
     private function showFileMetaData(): void
@@ -131,5 +116,15 @@ class UploadCommand extends Command
         ];
 
         $this->table($headers, $data);
+    }
+
+    private function validate(): void
+    {
+        if (! $this->anonfiles->checkIfFileExists($this->file)) {
+            $this->error("File doesn't exist.");
+            exit(1);
+        }
+
+        $this->anonfiles->setFile($this->file);
     }
 }
