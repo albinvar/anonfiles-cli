@@ -27,13 +27,6 @@ jobs:
         tools: composer:v2
         coverage: pcov
 
-    - name: Run phpstan
-      uses: actions-x/phpstan@v1
-      with:
-        directories: src
-        level: 2
-        phpstanVersion: ^0.12
-
     - name: Setup Problem Matches
       run: |
         echo "::add-matcher::${{ runner.tool_cache }}/php.json"
