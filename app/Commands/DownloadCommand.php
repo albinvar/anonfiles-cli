@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use App\Anonfiles\Anonfiles;
+use Anonfiles\Anonfiles;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Http;
 use LaravelZero\Framework\Commands\Command;
@@ -29,25 +29,25 @@ class DownloadCommand extends Command
     protected $description = 'Command description';
     
     
-    protected $anonfiles;
+    public $anonfiles;
     
-    protected $link;
+    public $link;
     
-    protected $downloadPath;
+    public $downloadPath;
     
-    protected $error;
+    public $error;
     
-    protected $status;
+    public $status;
     
-    protected $parsed;
+    public $parsed;
     
-    protected $parsedDownloadLink;
+    public $parsedDownloadLink;
     
-    protected $fileData;
+    public $fileData;
     
-    protected $downloadLink;
+    public $downloadLink;
     
-    protected $downloadFilename;
+    public $downloadFilename;
 
     public function __construct()
     {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Anonfiles;
+namespace Anonfiles;
 
 use DOMDocument;
 use GuzzleHttp\Client;
@@ -16,15 +16,15 @@ class Anonfiles extends Command
 {
     public $disk;
     
-    protected $file;
+    public $file;
     
-    protected $path;
+    public $path;
     
-    protected $fileSize;
+    public $fileSize;
     
-    protected $fileLastModified;
+    public $fileLastModified;
     
-    protected $client;
+    public $client;
 
     public $newFilename = null;
 
