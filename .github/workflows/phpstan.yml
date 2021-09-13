@@ -1,0 +1,35 @@
+name: Phpstan Test
+
+on: ['push', 'pull_request']
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        php: ['8.0']
+        dependency-version: [prefer-stable]
+
+    name: PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency-version }}
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: fileinfo
+        tools: composer:v2
+        coverage: pcov
+
+    - name: Run phpstan
+      uses: actions-x/phpstan@v1
+      with:
+        directories: src
+        level: 2
+        phpstanVersion: ^0.12
