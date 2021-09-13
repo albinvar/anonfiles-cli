@@ -44,7 +44,7 @@ curl -s https://github.com/albinvar/anonfiles-cli/raw/main/builds/anonfiles -o a
 wget https://github.com/albinvar/anonfiles-cli/raw/main/builds/anonfiles -O anonfiles
 ```
 
-#####  composer `(on construction)`
+#####  composer 
 Remember, installing with composer requires each and every libraries to be downloaded first.
 
 ```
