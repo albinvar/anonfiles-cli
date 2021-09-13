@@ -27,6 +27,10 @@ class UploadCommand extends Command
     protected $description = 'Upload files to anonfiles';
 
     protected $disk;
+    
+    protected $anonfiles;
+    
+    protected $file;
 
     protected $newFilename = null;
 

@@ -10,11 +10,21 @@ use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Request;
 use Laminas\Text\Figlet\Figlet;
 use LaravelZero\Framework\Commands\Command;
-use Storage;
+use Illuminate\Support\Facades\Storage; 
 
 class Anonfiles extends Command
 {
     public $disk;
+    
+    protected $file;
+    
+    protected $path;
+    
+    protected $fileSize;
+    
+    protected $fileLastModified;
+    
+    protected $client;
 
     public $newFilename = null;
 
@@ -135,8 +145,6 @@ class Anonfiles extends Command
     {
         $this->newFilename = $filename;
 
-        $this->setFileExtenstion();
-
         $this->client = new Client(['http_error' => false, 'progress' => function (
             $downloadTotal,
             $downloadedBytes,
@@ -150,7 +158,7 @@ class Anonfiles extends Command
         },
         ]);
 
-        if ($proxy === true && $this->checkIfCanConnectToSocksProxy($this->getSettings()) === false) {
+        if ($proxy === true && $this->checkIfCanConnectToSocksProxy()){
             $this->error('Cannot connect to tor proxy, please start tor on your device.');
             exit;
         }
@@ -196,7 +204,7 @@ class Anonfiles extends Command
             },
             ]);
 
-            if ($proxy === true && $this->checkIfCanConnectToSocksProxy($this->getSettings($proxy)) === false) {
+            if ($proxy === true && $this->checkIfCanConnectToSocksProxy()) {
                 $this->error('Cannot connect to tor proxy, please start tor on your device.');
                 exit;
             }
