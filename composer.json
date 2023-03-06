@@ -16,14 +16,14 @@
         }
     ],
     "require": {
-        "php": "^7.3|^8.0",
-        "guzzlehttp/guzzle": "^6.5.5",
-        "illuminate/http": "^8.0",
-        "laminas/laminas-text": "^2.8",
-        "laravel-zero/phar-updater": "^1.0.6"
+        "php": "^8.0",
+        "guzzlehttp/guzzle": "^7.4",
+        "illuminate/http": "^9.0",
+        "laminas/laminas-text": "^2.9",
+        "laravel-zero/phar-updater": "^1.2"
     },
     "require-dev": {
-	    "laravel-zero/framework": "^8.8",
+	    "laravel-zero/framework": "^9.0",
         "mockery/mockery": "^1.4.3",
         "nunomaduro/phpinsights": "^2.0",
         "pestphp/pest": "^1.3"
