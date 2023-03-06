@@ -142,19 +142,64 @@ class Anonfiles extends Command
     }
 
     public function upload($filename = null, $proxy = false): void
-    {
-        $this->newFilename = $filename;
+	{
+	    $this->newFilename = $filename;
 
-        $this->client = new Client(['http_error' => false, 'progress' => function (
+	    $this->client = new Client(['http_errors' => false, 'progress' => function (
+	        $downloadTotal,
+	        $downloadedBytes,
+	        $uploadTotal,
+	        $uploadedBytes
+		): void {
+		        echo "\033[5D";
+		        $msg = $this->diffForHumans($uploadedBytes) . ' / ' . $this->diffForHumans($uploadTotal);
+		        echo "     📂  Progress : {$msg} \r";
+		    },
+		]);
+
+    if ($proxy === true && $this->checkIfCanConnectToSocksProxy() === false) {
+        $this->error('Cannot connect to tor proxy, please start tor on your device.');
+        exit(1);
+    }
+
+    try {
+        $resource = $this->disk->readStream($this->file);
+
+        $stream = \GuzzleHttp\Psr7\Utils::streamFor($resource);
+
+        $request = new \GuzzleHttp\Psr7\Request(
+            'POST',
+            config('anonfiles.UPLOAD_ENDPOINT'),
+            $this->getSettings($proxy),
+            new \GuzzleHttp\Psr7\MultipartStream(
+            [
+                [
+                    'name' => 'file',
+                    'contents' => $stream,
+                    'filename' => $this->getFilename(),
+                ],
+            ]
+        )
+        );
+
+        $this->response = $this->client->send($request, $this->getSettings($proxy));
+    } catch (\GuzzleHttp\Exception\RequestException $e) {
+    }
+}
+
+
+public function download($link = null, $pathToFile = null, $proxy = false): mixed
+{
+    try {
+        $this->client = new Client(['http_errors' => false, 'progress' => function (
             $downloadTotal,
             $downloadedBytes,
             $uploadTotal,
             $uploadedBytes
-        ): void {
-            $res = curl_getinfo($downloadTotal);
-            echo "\033[5D";
-            $msg = $this->diffForHumans($res['size_upload']) . ' / ' . $this->diffForHumans($res['upload_content_length']);
-            echo "     📂  Progress : {$msg} \r";
+        ) use ($pathToFile): void {
+            $fileSize = filesize($pathToFile);
+            $msg = $this->diffForHumans($downloadedBytes) . ' / ' . $this->diffForHumans($downloadTotal);
+            echo "      📥  Progress : {$msg} \r";
         },
         ]);
 
@@ -163,64 +208,21 @@ class Anonfiles extends Command
             exit(1);
         }
 
-        try {
-            $resource = $this->disk->get($this->file);
+        $resource = fopen($pathToFile, 'w');
 
-            $stream = Psr7\stream_for($resource);
+        $array = ['sink' => $resource];
+        $array += $this->getSettings($proxy);
 
-            $request = new Request(
-                'POST',
-                config('anonfiles.UPLOAD_ENDPOINT'),
-                $this->getSettings($proxy),
-                new Psr7\MultipartStream(
-                [
-                    [
-                        'name' => 'file',
-                        'contents' => $stream,
-                        'filename' => $this->getFilename(),
-                    ],
-                ]
-            )
-            );
-
-            $this->response = $this->client->send($request, $this->getSettings($proxy));
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
-        }
+        $this->response = $this->client->request('GET', $link, $array);
+        fclose($resource);
+    } catch (\Exception $e) {
+        return false;
     }
+    return true;
+}
 
-    public function download($link = null, $pathToFile = null, $proxy = false): mixed
-    {
-        try {
-            $this->client = new Client(['http_error' => false, 'progress' => function (
-                $downloadTotal,
-                $downloadedBytes,
-                $uploadTotal,
-                $uploadedBytes
-            ): void {
-                echo "\033[5D";
-                $msg = $this->diffForHumans($uploadTotal) . ' / ' . $this->diffForHumans($downloadedBytes);
-                echo "      📥  Progress : {$msg} \r";
-            },
-            ]);
 
-            if ($proxy === true && $this->checkIfCanConnectToSocksProxy() === false) {
-                $this->error('Cannot connect to tor proxy, please start tor on your device.');
-                exit(1);
-            }
 
-            $resource = fopen($pathToFile, 'w');
-
-            $stream = Psr7\stream_for($resource);
-
-            $array = ['save_to' => $stream];
-            $array += $this->getSettings($proxy);
-
-            $this->response = $this->client->request('GET', $link, $array);
-        } catch (\Exception $e) {
-            return false;
-        }
-        return true;
-    }
 
     public function getResponse()
     {
